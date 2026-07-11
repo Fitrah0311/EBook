@@ -1,86 +1,89 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class BookController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $books = Book::all();
         return view('books.index', compact('books'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('books.create');
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
-    { 
+    {
+        // 1. Validasi file asli dengan limit ukuran
         $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
+            'author'      => 'required|string|max:255',
+            'category'    => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file_path' => 'required|file|mimes:pdf|max:50000', // maksimal 50MB
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'pdf_file'    => 'required|file|mimes:pdf|max:10240', 
         ]);
 
-        $dummyPath = 'ebooks/dummy-file-' . time() . '.pdf';
+        try {
+            // 2. Proses upload file ke folder
+            if ($request->hasFile('pdf_file')) {
+                $file = $request->file('pdf_file');
+                $path = $file->store('ebooks', 'public'); 
+            } else {
+                return response()->json(['success' => false, 'message' => 'File tidak ditemukan.'], 400);
+            }
 
-        \App\Models\Book::create([
-        'title'       => $request->title,
-        'author'      => $request->author,
-        'category'    => $request->category,
-        'description' => $request->description,
-        'file_path'   => 'ebooks/bypass-path.pdf', // Kita hardcode dulu path-nya
-    ]);
+            // 3. Simpan path lokasinya ke database
+            Book::create([
+                'title'       => $request->title,
+                'author'      => $request->author,
+                'category'    => $request->category,
+                'description' => $request->description,
+                'cover_image' => $request->cover_image,
+                'file_path'   => $path,
+            ]);
 
-    // Kembalikan ke halaman utama
-    return redirect()->route('books.index')->with('success', 'Buku Meow berhasil masuk!');
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            Log::error('Gagal mengunggah file ebook: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false, 
+                'message' => 'Gagal memproses unggahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $book = Book::findOrFail($id);
         return view('books.show', compact('book'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+    public function streamFile(Book $book)
+{
+    // Pastikan file-nya ada
+    if (!$book->file_path || !Storage::disk('public')->exists($book->file_path)) {
+        abort(404, 'File tidak ditemukan.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    $filePath = Storage::disk('public')->path($book->file_path);
+    
+    // Kirim response streaming dengan Content-Type yang tepat
+    return response()->file($filePath, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . $book->title . '.pdf"',
+        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+    ]);
+}
 }

@@ -23,8 +23,16 @@
 
         <div class="bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8 flex flex-col md:flex-row gap-8">
             
-            <div class="w-full md:w-1/3 h-64 bg-gray-300 rounded-lg flex items-center justify-center text-gray-500 shadow-inner">
-                <span class="text-center p-4">No Cover Image</span>
+            <div class="w-full md:w-1/3 flex justify-center items-start">
+                @if($book->cover_path)
+                    <img src="{{ asset('storage/' . $book->cover_path) }}" 
+                        alt="Sampul Buku {{ $book->title }}" 
+                        class="w-full max-w-[240px] h-auto object-cover rounded-lg shadow-md border border-gray-200">
+                @else
+                    <div class="w-full min-h-[320px] bg-gray-300 rounded-lg flex items-center justify-center text-gray-500 shadow-inner">
+                        <span class="text-center p-4 font-medium">No Cover Image</span>
+                    </div>
+                @endif
             </div>
 
             <div class="w-full md:w-2/3 flex flex-col justify-between">
@@ -44,14 +52,45 @@
                 </div>
 
                 <div class="mt-6">
-                    <a href="#" class="inline-block text-center bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-colors duration-200">
-                        Download / Baca PDF (Coming Soon)
-                    </a>
+                    @if($book->file_path)
+                        <button onclick="toggleReader()" 
+                            class="inline-block text-center bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-colors duration-200 cursor-pointer">
+                            📖 Baca Ebook Sekarang (Streaming)
+                        </button>
+                    @else
+                        <button disabled class="inline-block text-center bg-gray-400 text-white font-bold px-6 py-3 rounded-lg cursor-not-allowed">
+                            File PDF Tidak Tersedia
+                        </button>
+                    @endif
                 </div>
             </div>
-
         </div>
+
+        @if($book->file_path)
+            <div id="pdf-viewer-container" class="hidden mt-8 bg-white rounded-xl shadow-md p-4 transition-all duration-300">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Membaca: {{ $book->title }}</h3>
+                    <button onclick="toggleReader()" class="text-red-600 hover:text-red-800 font-medium">
+                        Tutup Viewer ✕
+                    </button>
+                </div>
+                <div class="w-full h-[600px] border border-gray-200 rounded-lg overflow-hidden bg-gray-700">
+                    <iframe src="{{ route('books.stream', $book->id) }}#toolbar=0" class="w-full h-full" frameborder="0"></iframe>
+                </div>
+            </div>
+        @endif
     </main>
 
+    <script>
+        function toggleReader() {
+            const container = document.getElementById('pdf-viewer-container');
+            if (container) {
+                container.classList.toggle('hidden');
+                if (!container.classList.contains('hidden')) {
+                    container.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        }
+    </script>
 </body>
 </html>
