@@ -74,22 +74,68 @@
                         Tutup Viewer ✕
                     </button>
                 </div>
-                <div class="w-full h-[600px] border border-gray-200 rounded-lg overflow-hidden bg-gray-700">
-                    <iframe src="{{ route('books.stream', $book->id) }}#toolbar=0" class="w-full h-full" frameborder="0"></iframe>
+                
+                <div id="pdf-canvas-container" class="w-full h-[650px] border border-gray-200 rounded-lg overflow-y-auto bg-gray-700 p-4 flex flex-col items-center gap-4">
+                    <div id="pdf-loading" class="text-white text-lg font-medium my-auto">Memuat halaman dokumen...</div>
                 </div>
             </div>
         @endif
     </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
     <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        let pdfDoc = null;
+        const streamUrl = "{{ route('books.stream', $book->id) }}";
+        const containerCanvas = document.getElementById('pdf-canvas-container');
+        const loadingText = document.getElementById('pdf-loading');
+
         function toggleReader() {
             const container = document.getElementById('pdf-viewer-container');
             if (container) {
                 container.classList.toggle('hidden');
                 if (!container.classList.contains('hidden')) {
-                    container.scrollIntoView({ behavior: 'smooth' });
+                    if (!pdfDoc) {
+                        loadPdfStream();
+                    }
+                    setTimeout(() => {
+                        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
                 }
             }
+        }
+
+        async function loadPdfStream() {
+            try {
+                pdfDoc = await pdfjsLib.getDocument(streamUrl).promise;
+                if(loadingText) loadingText.remove();
+                for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+                    await renderPage(pageNum);
+                }
+            } catch (error) {
+                console.error("Error render PDF: ", error);
+                if(loadingText) loadingText.innerText = "Gagal memuat PDF. Pastikan format file valid.";
+            }
+        }
+
+        async function renderPage(num) {
+            const page = await pdfDoc.getPage(num);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.className = "shadow-lg rounded mb-2 max-w-full bg-white";
+
+            containerCanvas.appendChild(canvas);
+
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            await page.render(renderContext).promise;
         }
     </script>
 </body>

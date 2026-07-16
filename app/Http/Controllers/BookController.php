@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -72,18 +73,17 @@ class BookController extends Controller
 
     public function streamFile(Book $book)
 {
-    // Pastikan file-nya ada
     if (!$book->file_path || !Storage::disk('public')->exists($book->file_path)) {
         abort(404, 'File tidak ditemukan.');
     }
 
     $filePath = Storage::disk('public')->path($book->file_path);
-    
-    // Kirim response streaming dengan Content-Type yang tepat
+    $fileName = Str::slug($book->title) . '.pdf';
+
     return response()->file($filePath, [
         'Content-Type' => 'application/pdf',
-        'Content-Disposition' => 'inline; filename="' . $book->title . '.pdf"',
-        'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+        'X-Content-Type-Options' => 'nosniff',
     ]);
 }
 }
