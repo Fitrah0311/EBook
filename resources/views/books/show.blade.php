@@ -70,12 +70,19 @@
             <div id="pdf-viewer-container" class="hidden mt-8 bg-white rounded-xl shadow-md p-4 transition-all duration-300">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-gray-800">Membaca: {{ $book->title }}</h3>
-                    <button onclick="toggleReader()" class="text-red-600 hover:text-red-800 font-medium">
-                        Tutup Viewer ✕
-                    </button>
+                    
+                    <div class="flex items-center gap-4">
+                        <button onclick="openFullscreen()" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
+                            <span>⛶</span> Baca Penuh
+                        </button>
+                        
+                        <button onclick="toggleReader()" class="text-red-600 hover:text-red-800 font-medium">
+                            Tutup Viewer ✕
+                        </button>
+                    </div>
                 </div>
                 
-                <div id="pdf-canvas-container" class="w-full h-[650px] border border-gray-200 rounded-lg overflow-y-auto bg-gray-700 p-4 flex flex-col items-center gap-4">
+                <div id="pdf-canvas-container" class="w-full h-[650px] border border-gray-200 rounded-lg overflow-y-auto bg-gray-700 p-4 flex flex-col items-center gap-4 transition-colors duration-200">
                     <div id="pdf-loading" class="text-white text-lg font-medium my-auto">Memuat halaman dokumen...</div>
                 </div>
             </div>
@@ -111,6 +118,7 @@
             try {
                 pdfDoc = await pdfjsLib.getDocument(streamUrl).promise;
                 if(loadingText) loadingText.remove();
+
                 for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
                     await renderPage(pageNum);
                 }
@@ -123,11 +131,12 @@
         async function renderPage(num) {
             const page = await pdfDoc.getPage(num);
             const viewport = page.getViewport({ scale: 1.5 });
+            
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.height = viewport.height;
             canvas.width = viewport.width;
-            canvas.className = "shadow-lg rounded mb-2 max-w-full bg-white";
+            canvas.className = "shadow-lg rounded mb-2 max-w-full bg-white transition-all";
 
             containerCanvas.appendChild(canvas);
 
@@ -137,6 +146,27 @@
             };
             await page.render(renderContext).promise;
         }
+
+        // ==================== FITUR BACA PENUH (FULLSCREEN) ====================
+        function openFullscreen() {
+            if (containerCanvas.requestFullscreen) {
+                containerCanvas.requestFullscreen();
+            } else if (containerCanvas.webkitRequestFullscreen) {
+                containerCanvas.webkitRequestFullscreen();
+            } else if (containerCanvas.msRequestFullscreen) {
+                containerCanvas.msRequestFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                containerCanvas.classList.remove('h-[650px]');
+                containerCanvas.classList.add('h-screen', 'bg-gray-950', 'p-8');
+            } else {
+                containerCanvas.classList.remove('h-screen', 'bg-gray-950', 'p-8');
+                containerCanvas.classList.add('h-[650px]', 'bg-gray-700');
+            }
+        });
     </script>
 </body>
 </html>

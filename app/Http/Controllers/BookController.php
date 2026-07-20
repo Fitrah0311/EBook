@@ -23,47 +23,53 @@ class BookController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // 1. Validasi file asli dengan limit ukuran
-        $request->validate([
-            'title'       => 'required|string|max:255',
-            'author'      => 'required|string|max:255',
-            'category'    => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'pdf_file'    => 'required|file|mimes:pdf|max:10240', 
+{
+    // 1. Validasi file asli dengan limit ukuran
+    $request->validate([
+        'title'       => 'required|string|max:255',
+        'author'      => 'required|string|max:255',
+        'category'    => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'pdf_file'    => 'required|file|mimes:pdf|max:10240', 
+    ]);
+
+    try {
+        // 2. Proses upload file PDF
+        if ($request->hasFile('pdf_file')) {
+            $file = $request->file('pdf_file');
+            $pdfPath = $file->store('ebooks', 'public'); 
+        } else {
+            return redirect()->back()->withErrors(['pdf_file' => 'File PDF tidak ditemukan.'])->withInput();
+        }
+
+        $coverPath = null;
+        if ($request->hasFile('cover_image')) {
+            $coverFile = $request->file('cover_image');
+            $coverPath = $coverFile->store('covers', 'public');
+        }
+
+        // 4. Simpan path lokasinya ke database
+        Book::create([
+            'title'       => $request->title,
+            'author'      => $request->author,
+            'category'    => $request->category,
+            'description' => $request->description,
+            'cover_image' => $coverPath,
+            'file_path'   => $pdfPath,
         ]);
 
-        try {
-            // 2. Proses upload file ke folder
-            if ($request->hasFile('pdf_file')) {
-                $file = $request->file('pdf_file');
-                $path = $file->store('ebooks', 'public'); 
-            } else {
-                return response()->json(['success' => false, 'message' => 'File tidak ditemukan.'], 400);
-            }
+        // Jika menggunakan form HTML biasa, redirect ke index dengan flash message
+        return redirect()->route('books.index')->with('success', 'Buku baru berhasil ditambahkan!');
 
-            // 3. Simpan path lokasinya ke database
-            Book::create([
-                'title'       => $request->title,
-                'author'      => $request->author,
-                'category'    => $request->category,
-                'description' => $request->description,
-                'cover_image' => $request->cover_image,
-                'file_path'   => $path,
-            ]);
+    } catch (\Exception $e) {
+        Log::error('Gagal mengunggah file ebook: ' . $e->getMessage());
 
-            return response()->json(['success' => true]);
-
-        } catch (\Exception $e) {
-            Log::error('Gagal mengunggah file ebook: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false, 
-                'message' => 'Gagal memproses unggahan: ' . $e->getMessage()
-            ], 500);
-        }
+        return redirect()->back()->withInput()->withErrors([
+            'error' => 'Gagal memproses unggahan: ' . $e->getMessage()
+        ]);
     }
+}
 
     public function show(string $id)
     {

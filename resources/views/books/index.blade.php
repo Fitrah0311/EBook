@@ -28,7 +28,7 @@
 
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Semua Koleksi Ebook</h2>
-            <a href="{{ route('books.create') }}" class="bg-blue-650 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition-colors duration-200">
+            <a href="{{ route('books.create') }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition-colors duration-200">
                 + Tambah Buku Baru
             </a>
         </div>
@@ -42,10 +42,16 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 @foreach($books as $book)
                     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                        <!-- Placeholder Cover Buku -->
-                        <div class="h-48 bg-gray-300 flex items-center justify-center text-gray-500">
-                            <span>No Cover Image</span>
-                        </div>
+                        
+                        <!-- Logika Cover Gambar -->
+                        @if($book->cover_image)
+                            <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}" class="w-full h-48 object-cover">
+                        @else
+                            <!-- Placeholder kalau tidak ada cover -->
+                            <div class="h-48 bg-gray-300 flex items-center justify-center text-gray-500">
+                                <span>No Cover Image</span>
+                            </div>
+                        @endif
                         
                         <!-- Detail Buku -->
                         <div class="p-4">
@@ -60,6 +66,7 @@
                                 Baca Ebook
                             </a>
                         </div>
+
                     </div>
                 @endforeach
             </div>
