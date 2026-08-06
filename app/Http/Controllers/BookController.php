@@ -49,7 +49,7 @@ class BookController extends Controller
             $coverPath = $coverFile->store('covers', 'public');
         }
 
-        // 4. Simpan path lokasinya ke database
+        // 4. Simpan path ke database
         Book::create([
             'title'       => $request->title,
             'author'      => $request->author,
@@ -59,7 +59,6 @@ class BookController extends Controller
             'file_path'   => $pdfPath,
         ]);
 
-        // Jika menggunakan form HTML biasa, redirect ke index dengan flash message
         return redirect()->route('books.index')->with('success', 'Buku baru berhasil ditambahkan!');
 
     } catch (\Exception $e) {
@@ -91,5 +90,19 @@ class BookController extends Controller
         'Content-Disposition' => 'inline; filename="' . $fileName . '"',
         'X-Content-Type-Options' => 'nosniff',
     ]);
+}
+
+    public function destroy(Book $book)
+{
+    if ($book->cover_image && Storage::disk('public')->exists($book->cover_image)) {
+        Storage::disk('public')->delete($book->cover_image);
+    }
+
+    if ($book->file_path && Storage::disk('public')->exists($book->file_path)) {
+        Storage::disk('public')->delete($book->file_path);
+    }
+
+    $book->delete();
+    return redirect()->route('books.index')->with('success', 'Buku berhasil dihapus dari katalog!');
 }
 }

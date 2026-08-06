@@ -24,8 +24,8 @@
         <div class="bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8 flex flex-col md:flex-row gap-8">
             
             <div class="w-full md:w-1/3 flex justify-center items-start">
-                @if($book->cover_path)
-                    <img src="{{ asset('storage/' . $book->cover_path) }}" 
+                @if($book->cover_image)
+                    <img src="{{ asset('storage/' . $book->cover_image) }}" 
                         alt="Sampul Buku {{ $book->title }}" 
                         class="w-full max-w-[240px] h-auto object-cover rounded-lg shadow-md border border-gray-200">
                 @else
@@ -51,7 +51,8 @@
                     </p>
                 </div>
 
-                <div class="mt-6">
+                <!-- Area Action Buttons (Baca & Hapus) -->
+                <div class="mt-6 flex flex-wrap items-center gap-4">
                     @if($book->file_path)
                         <button onclick="toggleReader()" 
                             class="inline-block text-center bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-colors duration-200 cursor-pointer">
@@ -62,6 +63,15 @@
                             File PDF Tidak Tersedia
                         </button>
                     @endif
+
+                    <!-- Tombol Hapus Buku -->
+                    <form action="{{ route('books.destroy', $book->id) }}" method="POST" onsubmit="return confirm('Apakah yakin ingin menghapus buku ini? Data dan file terkait akan dihapus permanen.');" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-colors duration-200 cursor-pointer">
+                            🗑️ Hapus Buku
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -147,7 +157,6 @@
             await page.render(renderContext).promise;
         }
 
-        // ==================== FITUR BACA PENUH (FULLSCREEN) ====================
         function openFullscreen() {
             if (containerCanvas.requestFullscreen) {
                 containerCanvas.requestFullscreen();
