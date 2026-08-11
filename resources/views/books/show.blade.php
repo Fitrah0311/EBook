@@ -51,25 +51,30 @@
                     </p>
                 </div>
 
-                <!-- Area Action Buttons (Baca & Hapus) -->
-                <div class="mt-6 flex flex-wrap items-center gap-4">
+                <!-- Area Action Buttons (Baca, Edit, & Hapus) -->
+                <div class="mt-6 flex flex-wrap items-center gap-3">
                     @if($book->file_path)
                         <button onclick="toggleReader()" 
-                            class="inline-block text-center bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-colors duration-200 cursor-pointer">
-                            📖 Baca Ebook Sekarang (Streaming)
+                            class="inline-block text-center bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-lg shadow transition-colors duration-200 cursor-pointer">
+                            📖 Baca Ebook
                         </button>
                     @else
-                        <button disabled class="inline-block text-center bg-gray-400 text-white font-bold px-6 py-3 rounded-lg cursor-not-allowed">
+                        <button disabled class="inline-block text-center bg-gray-400 text-white font-bold px-5 py-2.5 rounded-lg cursor-not-allowed">
                             File PDF Tidak Tersedia
                         </button>
                     @endif
+
+                    <!-- Tombol Edit Buku -->
+                    <a href="{{ route('books.edit', $book->id) }}" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 rounded-lg shadow transition-colors duration-200 inline-block">
+                        Edit
+                    </a>
 
                     <!-- Tombol Hapus Buku -->
                     <form action="{{ route('books.destroy', $book->id) }}" method="POST" onsubmit="return confirm('Apakah yakin ingin menghapus buku ini? Data dan file terkait akan dihapus permanen.');" class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-lg shadow transition-colors duration-200 cursor-pointer">
-                            🗑️ Hapus Buku
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-lg shadow transition-colors duration-200 cursor-pointer">
+                            🗑️ Hapus
                         </button>
                     </form>
                 </div>
