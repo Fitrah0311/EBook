@@ -6,12 +6,17 @@ export default function Index({ books, categories, filters, flash }) {
         e.preventDefault();
         const search = e.target.search.value;
         const category = e.target.category.value;
-        router.get('/books', { search, category }, { preserveState: true });
+        router.get('/admin/books', { search, category }, { preserveState: true });
     };
 
     const handleCategoryChange = (e) => {
         const category = e.target.value;
-        router.get('/books', { search: filters?.search || '', category }, { preserveState: true });
+        router.get('/admin/books', { search: filters?.search || '', category }, { preserveState: true });
+    };
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        router.post('/logout');
     };
 
     return (
@@ -20,7 +25,15 @@ export default function Index({ books, categories, filters, flash }) {
             <nav className="bg-blue-600 text-white shadow-md p-4">
                 <div className="container mx-auto flex justify-between items-center">
                     <h1 className="text-xl font-bold tracking-wide">📚 Ebook Library</h1>
-                    <span className="text-sm bg-blue-700 px-3 py-1 rounded-full">Laravel 13 + React</span>
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm bg-blue-700 px-3 py-1 rounded-full">Laravel 13 + React</span>
+                        <button 
+                            onClick={handleLogout} 
+                            className="text-xs bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-1.5 rounded transition-colors shadow"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </nav>
 
@@ -35,7 +48,7 @@ export default function Index({ books, categories, filters, flash }) {
 
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">Semua Koleksi Ebook</h2>
-                    <Link href="/books/create" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition-colors duration-200">
+                    <Link href="/admin/books/create" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow transition-colors duration-200">
                         + Tambah Buku Baru
                     </Link>
                 </div>
@@ -71,7 +84,7 @@ export default function Index({ books, categories, filters, flash }) {
                             Cari
                         </button>
                         {(filters?.search || filters?.category) && (
-                            <Link href="/books" className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                            <Link href="/admin/books" className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
                                 Reset
                             </Link>
                         )}
@@ -82,7 +95,7 @@ export default function Index({ books, categories, filters, flash }) {
                     <div className="bg-white p-6 rounded-lg shadow-sm text-center">
                         <p className="text-gray-500 text-lg">Tidak ada koleksi buku yang ditemukan.</p>
                         {(filters?.search || filters?.category) && (
-                            <Link href="/books" className="text-blue-600 hover:underline mt-2 inline-block">Lihat Semua Buku</Link>
+                            <Link href="/admin/books" className="text-blue-600 hover:underline mt-2 inline-block">Lihat Semua Buku</Link>
                         )}
                     </div>
                 ) : (
@@ -109,7 +122,7 @@ export default function Index({ books, categories, filters, flash }) {
                                 </div>
 
                                 <div className="p-4 pt-0">
-                                    <Link href={`/books/${book.id}`} className="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded transition-colors duration-200">
+                                    <Link href={`/admin/books/${book.id}`} className="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded transition-colors duration-200">
                                         Lihat Ebook
                                     </Link>
                                 </div>

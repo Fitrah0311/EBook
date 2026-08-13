@@ -6,12 +6,12 @@ export default function UserIndex({ books, categories, filters }) {
         e.preventDefault();
         const search = e.target.search.value;
         const category = e.target.category.value;
-        router.get('/books', { search, category }, { preserveState: true });
+        router.get('/user/books', { search, category }, { preserveState: true });
     };
 
     const handleCategoryChange = (e) => {
         const category = e.target.value;
-        router.get('/books', { search: filters?.search || '', category }, { preserveState: true });
+        router.get('/user/books', { search: filters?.search || '', category }, { preserveState: true });
     };
 
     return (
@@ -23,32 +23,32 @@ export default function UserIndex({ books, categories, filters }) {
                         <span>📚</span> Ebook Library Store
                     </h1>
                     {/* Link Tersembunyi Ke Portal Admin jika mau kelola data */}
-                    <Link href="/admin/books" className="text-xs bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-full transition-colors font-medium">
+                    <Link href="/login" className="text-xs bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-full transition-colors font-medium">
                         Portal Admin 🔒
                     </Link>
                 </div>
             </nav>
 
-            <main className="container mx-auto px-4 py-8 max-w-7xl">
+            <main className="container mx-auto px-4 py-8">
 
                 {/* Form Fitur Pencarian & Filter Kategori */}
-                <form onSubmit={handleSearch} className="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-col md:flex-row gap-4">
+                <form onSubmit={handleSearch} className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row gap-4">
                     <div className="flex-grow">
                         <input 
                             type="text" 
                             name="search" 
                             defaultValue={filters?.search || ''} 
                             placeholder="Cari berdasarkan judul buku atau penulis..." 
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
-                    <div className="w-full md:w-52">
+                    <div className="w-full md:w-48">
                         <select 
                             name="category" 
                             defaultValue={filters?.category || ''} 
                             onChange={handleCategoryChange} 
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="">Semua Kategori</option>
                             {categories && categories.map((cat, index) => (
@@ -58,50 +58,50 @@ export default function UserIndex({ books, categories, filters }) {
                     </div>
 
                     <div className="flex gap-2">
-                        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow transition-colors text-sm">
+                        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow transition-colors duration-200">
                             Cari
                         </button>
                         {(filters?.search || filters?.category) && (
-                            <Link href="/books" className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors flex items-center justify-center">
+                            <Link href="/user/books" className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-center">
                                 Reset
                             </Link>
                         )}
                     </div>
                 </form>
 
-                {/* Grid Card Ebook Untuk User */}
+                {/* Grid Card Ebook Untuk User (Disamakan dengan AdminIndex) */}
                 {books.length === 0 ? (
-                    <div className="bg-white p-8 rounded-xl shadow-sm text-center my-6">
-                        <p className="text-gray-500 text-base">Buku yang dicari tidak ditemukan.</p>
-                        <Link href="/books" className="text-blue-600 hover:underline text-sm mt-2 inline-block font-medium">Lihat Semua Ebook</Link>
+                    <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+                        <p className="text-gray-500 text-lg">Tidak ada koleksi buku yang ditemukan.</p>
+                        {(filters?.search || filters?.category) && (
+                            <Link href="/user/books" className="text-blue-600 hover:underline mt-2 inline-block">Lihat Semua Buku</Link>
+                        )}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {books.map((book) => (
-                            <div key={book.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col justify-between">
+                            <div key={book.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between">
                                 <div>
-                                    <div className="relative h-52 bg-gray-200 overflow-hidden">
-                                        {book.cover_image ? (
-                                            <img src={`/storage/${book.cover_image}`} alt={book.title} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">
-                                                No Cover Image
-                                            </div>
-                                        )}
-                                        <span className="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                                    {book.cover_image ? (
+                                        <img src={`/storage/${book.cover_image}`} alt={book.title} className="w-full h-48 object-cover" />
+                                    ) : (
+                                        <div className="h-48 bg-gray-300 flex items-center justify-center text-gray-500">
+                                            <span>No Cover Image</span>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="p-4">
+                                        <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-1 rounded">
                                             {book.category}
                                         </span>
-                                    </div>
-
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-base text-gray-800 line-clamp-1">{book.title}</h3>
-                                        <p className="text-xs text-gray-500 mt-1">Penulis: <span className="text-gray-700">{book.author}</span></p>
+                                        <h3 className="font-bold text-lg mt-2 text-gray-800 line-clamp-1">{book.title}</h3>
+                                        <p className="text-sm text-gray-600 mb-4">Penulis: {book.author}</p>
                                     </div>
                                 </div>
 
                                 <div className="p-4 pt-0">
-                                    <Link href={`/books/${book.id}`} className="block text-center w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors text-sm">
-                                        📖 Baca / Detail Ebook
+                                    <Link href={`/user/books/${book.id}`} className="block text-center w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded transition-colors duration-200">
+                                        Lihat Ebook
                                     </Link>
                                 </div>
                             </div>

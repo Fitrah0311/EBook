@@ -6,6 +6,7 @@ use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
@@ -41,20 +42,23 @@ class BookController extends Controller
 
     // Tampilan Untuk Admin Kelola Data
     public function adminIndex(Request $request)
-    {
-        // Cek apakah session admin ada, kalau tidak ada Banting/Redirect ke /user/books
-        if (!session('is_admin')) {
-            return redirect()->route('user.books.index')->with('error', 'Akses Ditolak! Anda bukan Admin.');
-        }
+{
+    // Cek apakah user sedang login DAN ber-role admin (atau flag session aktif)
+    $isUserAdmin = Auth::check() && (strtolower(Auth::user()->role) === 'admin' || session('is_admin'));
 
-        $books = Book::latest()->get();
-        $categories = Book::select('category')->distinct()->pluck('category');
-
-        return Inertia::render('Books/Index', [
-            'books'      => $books,
-            'categories' => $categories,
-        ]);
+    if (!$isUserAdmin) {
+        // Kalau bukan admin, baru dilempar balik
+        return redirect()->route('user.books.index')->with('error', 'Akses Ditolak!');
     }
+
+    $books = Book::latest()->get();
+    $categories = Book::select('category')->distinct()->pluck('category');
+
+    return Inertia::render('Books/AdminIndex', [
+        'books'      => $books,
+        'categories' => $categories,
+    ]);
+}
 
     public function create()
     {

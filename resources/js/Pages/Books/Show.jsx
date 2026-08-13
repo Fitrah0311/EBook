@@ -22,7 +22,7 @@ export default function Show({ book, isAdmin }) {
 
             <main className="container mx-auto px-4 py-8 max-w-4xl">
                 <Link href={isAdmin ? "/admin/books" : "/user/books"} className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium mb-6">
-                    ← Kembali ke Semua Koleksi
+                    ← Kembali
                 </Link>
 
                 <div className="bg-white rounded-xl shadow-md overflow-hidden p-6 md:p-8 flex flex-col md:flex-row gap-8">
@@ -66,7 +66,7 @@ export default function Show({ book, isAdmin }) {
                             {isAdmin && (
                                 <>
                                     <Link href={`/admin/books/${book.id}/edit`} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 rounded-lg shadow transition-colors">
-                                        ✏️ Edit Buku
+                                        ✏️ Edit
                                     </Link>
 
                                     <button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 rounded-lg shadow transition-colors">
