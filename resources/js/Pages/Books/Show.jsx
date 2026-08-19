@@ -10,6 +10,10 @@ export default function Show({ book, isAdmin }) {
         }
     };
 
+    const handleBookmark = () => {
+        router.post(`/user/books/${book.id}/bookmark`, {}, { preserveScroll: true });
+    };
+
     return (
         <div className="bg-gray-100 text-gray-900 font-sans min-h-screen">
             <nav className="bg-blue-600 text-white shadow-md p-4">
@@ -50,7 +54,7 @@ export default function Show({ book, isAdmin }) {
                             </p>
                         </div>
 
-                        {/* KUNCI UTAMA: Tombol Edit & Hapus CUMA MUNCUL KALAU isAdmin = true */}
+                        {/* Aksi Buku: Baca, Bookmark, & CRUD Admin */}
                         <div className="mt-6 flex flex-wrap items-center gap-3">
                             {book.file_path ? (
                                 <button onClick={() => setShowReader(!showReader)} className="bg-green-600 hover:bg-green-700 text-white font-bold px-5 py-2.5 rounded-lg shadow transition-colors">
@@ -59,6 +63,16 @@ export default function Show({ book, isAdmin }) {
                             ) : (
                                 <button disabled className="bg-gray-400 text-white font-bold px-5 py-2.5 rounded-lg cursor-not-allowed">
                                     File PDF Tidak Tersedia
+                                </button>
+                            )}
+
+                            {/* Tombol Simpan Bookmark (Khusus User Portal) */}
+                            {!isAdmin && (
+                                <button 
+                                    onClick={handleBookmark}
+                                    className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 rounded-lg shadow transition-colors flex items-center gap-1.5"
+                                >
+                                    🔖 Bookmark
                                 </button>
                             )}
 

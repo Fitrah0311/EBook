@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+use App\Models\Book;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
@@ -13,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
-{
+{ 
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -28,5 +29,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function bookmarkedBooks()
+    {
+        return $this->belongsToMany(Book::class, 'bookmarks', 'user_id', 'book_id')->withTimestamps();
     }
 }
