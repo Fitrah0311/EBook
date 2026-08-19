@@ -1,16 +1,17 @@
 import React from 'react';
 import { useForm, Link } from '@inertiajs/react';
 
-export default function Login() {
+export default function Register() {
     const { data, setData, post, processing, errors } = useForm({
+        name: '',
         email: '',
         password: '',
-        remember: false,
+        password_confirmation: '',
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/login');
+        post('/register');
     };
 
     return (
@@ -20,14 +21,35 @@ export default function Login() {
                 {/* Header */}
                 <div className="text-center mb-6">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-3 text-3xl shadow-inner">
-                        📚
+                        📖
                     </div>
-                    <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Portal Masuk</h2>
-                    <p className="text-sm text-gray-500 mt-1">Masuk untuk mengelola atau mengakses ebook</p>
+                    <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Daftar Akun</h2>
+                    <p className="text-sm text-gray-500 mt-1">Buat akun untuk mulai membaca ebook favoritmu</p>
                 </div>
 
-                {/* Form Login */}
+                {/* Form Register */}
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                            Nama Lengkap
+                        </label>
+                        <input
+                            type="text"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
+                            required
+                            placeholder="Contoh: John Doe"
+                            className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
+                                errors.name
+                                    ? 'border-red-500 ring-2 ring-red-200'
+                                    : 'border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'
+                            }`}
+                        />
+                        {errors.name && (
+                            <p className="text-red-500 text-xs mt-1 font-medium">{errors.name}</p>
+                        )}
+                    </div>
+
                     <div>
                         <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
                             Alamat Email
@@ -58,7 +80,7 @@ export default function Login() {
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
                             required
-                            placeholder="••••••••"
+                            placeholder="Minimal 6 karakter"
                             className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all ${
                                 errors.password
                                     ? 'border-red-500 ring-2 ring-red-200'
@@ -70,38 +92,40 @@ export default function Login() {
                         )}
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
-                        <label className="flex items-center gap-2 cursor-pointer text-gray-600 select-none">
-                            <input
-                                type="checkbox"
-                                checked={data.remember}
-                                onChange={(e) => setData('remember', e.target.checked)}
-                                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                            />
-                            <span className="text-xs">Ingat Saya</span>
+                    <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                            Konfirmasi Kata Sandi
                         </label>
+                        <input
+                            type="password"
+                            value={data.password_confirmation}
+                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            required
+                            placeholder="Ketik ulang kata sandi"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-sm outline-none transition-all"
+                        />
                     </div>
 
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 text-sm"
+                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 text-sm mt-2"
                     >
-                        {processing ? 'Memproses...' : 'Masuk Sekarang'}
+                        {processing ? 'Mendaftarkan...' : 'Daftar Sekarang'}
                     </button>
                 </form>
 
-                {/* Footer Link */}
-                <div className="mt-6 text-center pt-4 border-t border-gray-100 flex flex-col gap-2">
-                    <p className="text-xs text-gray-500">
-                        Belum punya akun?{' '}
-                        <Link href="/register" className="text-blue-600 hover:underline font-semibold">
-                            Daftar Sekarang
+                {/* Footer Links */}
+                <div className="mt-6 text-center pt-4 border-t border-gray-100 flex flex-col gap-2 text-xs text-gray-500">
+                    <p>
+                        Sudah punya akun?{' '}
+                        <Link href="/login" className="text-blue-600 hover:underline font-semibold">
+                            Masuk di sini
                         </Link>
                     </p>
                     <Link
                         href="/user/books"
-                        className="text-xs text-gray-500 hover:text-blue-600 transition-colors font-medium inline-flex items-center justify-center gap-1"
+                        className="hover:text-blue-600 transition-colors font-medium"
                     >
                         ← Kembali ke Katalog Ebook
                     </Link>
