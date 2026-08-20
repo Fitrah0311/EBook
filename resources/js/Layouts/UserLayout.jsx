@@ -23,7 +23,7 @@ export default function UserLayout({ children }) {
             {/* Mobile Topbar */}
             <div className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
                 <h1 className="font-bold text-lg flex items-center gap-2">
-                    <span>📚</span> Ebook Store
+                    <span>📚</span> Ebook Library
                 </h1>
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}

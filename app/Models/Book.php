@@ -3,18 +3,20 @@
 namespace App\Models;
 use App\Models\User;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Book extends Model
 {
-    // Daftarkan kolom yang boleh diisi dari Form/Request
+    use HasFactory;
+    
     protected $fillable = [
         'title',
         'author',
         'description',
         'cover_image',
         'category',
-        'file_path'
+        'file_path',
     ];
 
     public function bookmarkedByUsers()

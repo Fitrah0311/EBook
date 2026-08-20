@@ -32,7 +32,6 @@ class BookController extends Controller
         $books = $query->latest()->get();
         $categories = Book::select('category')->distinct()->pluck('category');
 
-        // Mengarah ke Tampilan User (UserIndex.jsx)
         return Inertia::render('Books/UserIndex', [
             'books'      => $books,
             'categories' => $categories,
@@ -42,53 +41,54 @@ class BookController extends Controller
 
     // Tampilan Untuk Admin Kelola Data
     public function adminIndex(Request $request)
-{
-    // Cek apakah user sedang login DAN ber-role admin (atau flag session aktif)
-    $isUserAdmin = Auth::check() && (strtolower(Auth::user()->role) === 'admin' || session('is_admin'));
+    {
+        $isUserAdmin = Auth::check() && (strtolower(Auth::user()->role) === 'admin' || session('is_admin'));
 
-    if (!$isUserAdmin) {
-        // Kalau bukan admin, baru dilempar balik
-        return redirect()->route('user.books.index')->with('error', 'Akses Ditolak!');
+        if (!$isUserAdmin) {
+            return redirect()->route('user.books.index')->with('error', 'Akses Ditolak!');
+        }
+
+        $books = Book::latest()->get();
+        $categories = Book::select('category')->distinct()->pluck('category');
+
+        return Inertia::render('Books/AdminIndex', [
+            'books'      => $books,
+            'categories' => $categories,
+            'filters'    => $request->only(['search', 'category']),
+        ]);
     }
-
-    $books = Book::latest()->get();
-    $categories = Book::select('category')->distinct()->pluck('category');
-
-    return Inertia::render('Books/AdminIndex', [
-        'books'      => $books,
-        'categories' => $categories,
-    ]);
-}
 
     public function create()
     {
-        // Render komponen React di resources/js/Pages/Books/Create.jsx
         return Inertia::render('Books/Create');
     }
 
     public function store(Request $request)
     {
+        // Validasi: Mendukung nama field 'file_path' maupun 'pdf_file'
         $request->validate([
             'title'       => 'required|string|max:255',
             'author'      => 'required|string|max:255',
             'category'    => 'required|string|max:255',
             'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20048',
-            'pdf_file'    => 'required|file|mimes:pdf|max:10240', 
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'file_path'   => 'nullable|file|mimes:pdf|max:20480',
+            'pdf_file'    => 'nullable|file|mimes:pdf|max:20480',
         ]);
 
         try {
-            if ($request->hasFile('pdf_file')) {
-                $file = $request->file('pdf_file');
-                $pdfPath = $file->store('ebooks', 'public'); 
-            } else {
-                return redirect()->back()->withErrors(['pdf_file' => 'File PDF tidak ditemukan.'])->withInput();
+            // Tangkap file PDF dari 'file_path' atau 'pdf_file'
+            $pdfPath = null;
+            if ($request->hasFile('file_path')) {
+                $pdfPath = $request->file('file_path')->store('ebooks', 'public');
+            } elseif ($request->hasFile('pdf_file')) {
+                $pdfPath = $request->file('pdf_file')->store('ebooks', 'public');
             }
 
+            // Tangkap cover image
             $coverPath = null;
             if ($request->hasFile('cover_image')) {
-                $coverFile = $request->file('cover_image');
-                $coverPath = $coverFile->store('covers', 'public');
+                $coverPath = $request->file('cover_image')->store('covers', 'public');
             }
 
             Book::create([
@@ -100,7 +100,7 @@ class BookController extends Controller
                 'file_path'   => $pdfPath,
             ]);
 
-            return redirect()->route('books.index')->with('success', 'Buku baru berhasil ditambahkan!');
+            return redirect()->route('admin.books.index')->with('success', 'Buku berhasil ditambahkan!');
 
         } catch (\Exception $e) {
             Log::error('Gagal mengunggah file ebook: ' . $e->getMessage());
@@ -114,17 +114,16 @@ class BookController extends Controller
     public function show(Request $request, string $id)
     {
         $book = Book::findOrFail($id);
-        // cek apakah route saat ini adalah route admin atau user
         $isAdmin = $request->is('admin/*');
+
         return Inertia::render('Books/Show', [
-        'book'    => $book,
-        'isAdmin' => $isAdmin // Kirim boolean true/false ke React
+            'book'    => $book,
+            'isAdmin' => $isAdmin
         ]);
     }
 
     public function edit(Book $book)
     {
-        // Render komponen React di resources/js/Pages/Books/Edit.jsx
         return Inertia::render('Books/Edit', [
             'book' => $book
         ]);
@@ -137,28 +136,30 @@ class BookController extends Controller
             'author'      => 'required|string|max:255',
             'category'    => 'required|string|max:255',
             'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:20048',
-            'pdf_file'    => 'nullable|file|mimes:pdf|max:10240',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:10240',
+            'file_path'   => 'nullable|file|mimes:pdf|max:20480',
+            'pdf_file'    => 'nullable|file|mimes:pdf|max:20480',
         ]);
 
         try {
             $pdfPath = $book->file_path;
             $coverPath = $book->cover_image;
 
-            if ($request->hasFile('pdf_file')) {
+            // Update file PDF jika ada upload baru
+            $uploadedPdf = $request->file('file_path') ?? $request->file('pdf_file');
+            if ($uploadedPdf) {
                 if ($book->file_path && Storage::disk('public')->exists($book->file_path)) {
                     Storage::disk('public')->delete($book->file_path);
                 }
-                $file = $request->file('pdf_file');
-                $pdfPath = $file->store('ebooks', 'public');
+                $pdfPath = $uploadedPdf->store('ebooks', 'public');
             }
 
+            // Update Cover Image jika ada upload baru
             if ($request->hasFile('cover_image')) {
                 if ($book->cover_image && Storage::disk('public')->exists($book->cover_image)) {
                     Storage::disk('public')->delete($book->cover_image);
                 }
-                $coverFile = $request->file('cover_image');
-                $coverPath = $coverFile->store('covers', 'public');
+                $coverPath = $request->file('cover_image')->store('covers', 'public');
             }
 
             $book->update([
@@ -170,7 +171,8 @@ class BookController extends Controller
                 'file_path'   => $pdfPath,
             ]);
 
-            return redirect()->route('books.index')->with('success', 'Buku berhasil diperbarui!');
+            // Redirect kembali ke admin.books.index
+            return redirect()->route('admin.books.index')->with('success', 'Buku berhasil diperbarui!');
 
         } catch (\Exception $e) {
             Log::error('Gagal memperbarui data buku: ' . $e->getMessage());
@@ -208,6 +210,7 @@ class BookController extends Controller
         }
 
         $book->delete();
-        return redirect()->route('books.index')->with('success', 'Buku berhasil dihapus dari katalog!');
+        // Redirect kembali ke admin.books.index
+        return redirect()->route('admin.books.index')->with('success', 'Buku berhasil dihapus dari katalog!');
     }
 }
