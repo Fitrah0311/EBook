@@ -28,9 +28,10 @@ export default function Create() {
             <header className="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-lg shadow">
-                            📚
-                        </div>
+                        <img 
+                        src="/images/logo.jpeg" 
+                        alt="Logo Ebook Library" 
+                        className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-lg shadow"/>
                         <h1 className="font-bold text-base text-white">Admin Panel - Tambah Buku</h1>
                     </div>
                     <Link
