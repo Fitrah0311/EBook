@@ -31,9 +31,10 @@ export default function AdminIndex({ books, categories, filters, flash }) {
             <header className="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center text-xl shadow-lg ring-1 ring-white/10">
-                            📚
-                        </div>
+                        <img 
+                        src="/images/logo.jpeg" 
+                        alt="Logo Ebook Library" 
+                        className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center text-xl shadow-lg ring-1 ring-white/10"/>
                         <div>
                             <div className="flex items-center gap-2">
                                 <h1 className="font-extrabold text-base tracking-tight text-white">Ebook Library</h1>

@@ -20,9 +20,10 @@ export default function Register() {
                 
                 {/* Header */}
                 <div className="text-center mb-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-3 text-3xl shadow-inner">
-                        📖
-                    </div>
+                    <img 
+                        src="/images/logo.jpeg" 
+                        alt="Logo Ebook Library" 
+                        className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-xl mb-3 text-3xl shadow-inner"/>
                     <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Daftar Akun</h2>
                     <p className="text-sm text-gray-500 mt-1">Buat akun untuk mulai membaca ebook favoritmu</p>
                 </div>

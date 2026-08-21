@@ -23,7 +23,11 @@ export default function UserLayout({ children }) {
             {/* Mobile Topbar */}
             <div className="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
                 <h1 className="font-bold text-lg flex items-center gap-2">
-                    <span>📚</span> Ebook Library
+                    <img 
+                        src="/images/logo.jpeg" 
+                        alt="Logo Ebook Library" 
+                        className="w-12 h-12 rounded-xl object-contain shadow-md"/>
+                        Ebook Library
                 </h1>
                 <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -51,9 +55,10 @@ export default function UserLayout({ children }) {
                 <div>
                     {/* Brand Header */}
                     <div className="flex items-center gap-3 pb-6 border-b border-slate-800">
-                        <div className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center text-xl shadow-lg ring-1 ring-white/10">
-                            📚
-                        </div>
+                        <img 
+                        src="/images/logo.jpeg" 
+                        alt="Logo Ebook Library" 
+                        className="w-12 h-12 rounded-xl object-contain shadow-md"/>
                         <div>
                             <h2 className="font-bold text-base tracking-tight leading-tight">Ebook Library</h2>
                             <span className="text-[11px] text-blue-400 font-medium">Reader Portal</span>

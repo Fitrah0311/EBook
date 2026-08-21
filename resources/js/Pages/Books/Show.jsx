@@ -24,9 +24,10 @@ export default function Show({ book, isAdmin }) {
                         href={isAdmin ? "/admin/books" : "/user/books"}
                         className="flex items-center gap-2.5 font-extrabold text-base tracking-tight text-white hover:text-blue-300 transition-colors"
                     >
-                        <div className="w-9 h-9 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center text-lg shadow-md ring-1 ring-white/10">
-                            📚
-                        </div>
+                        <img 
+                        src="/images/logo.jpeg" 
+                        alt="Logo Ebook Library" 
+                        className="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center text-xl shadow-lg ring-1 ring-white/10"/>
                         <span>Ebook Library</span>
                         {isAdmin && (
                             <span className="text-[10px] uppercase tracking-wider font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
